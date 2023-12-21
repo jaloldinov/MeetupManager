@@ -7,7 +7,7 @@ import (
 )
 
 type Place struct {
-	bun.BaseModel `bun:"table:users"`
+	bun.BaseModel `bun:"table:places"`
 
 	Id        string     `json:"id" bun:"id,pk"`
 	Name      string     `json:"name" bun:"name"`

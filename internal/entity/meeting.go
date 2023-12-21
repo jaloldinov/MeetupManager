@@ -7,7 +7,7 @@ import (
 )
 
 type Meeting struct {
-	bun.BaseModel `bun:"table:users"`
+	bun.BaseModel `bun:"table:meetings"`
 
 	Id          string             `json:"id" bun:"id,pk"`
 	Title       *map[string]string `json:"title" bun:"title"`

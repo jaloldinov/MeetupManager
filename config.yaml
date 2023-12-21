@@ -1,0 +1,6 @@
+db_name: meetup
+db_username: postgres
+db_password: 2511
+port: 5432
+jwt_key: MySecretKey
+default_lang: uz

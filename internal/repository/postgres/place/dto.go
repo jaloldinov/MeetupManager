@@ -20,7 +20,7 @@ type CreatePlaceRequest struct {
 type CreatePlaceResponse struct {
 	bun.BaseModel `bun:"table:places"`
 
-	Id        string    `json:"id" bun:"id,pk"`
+	Id        *int      `json:"id" bun:"id,pk"`
 	Name      string    `json:"name" bun:"name"`
 	Code      string    `json:"code" bun:"code"`
 	CreatedAt time.Time `json:"-" bun:"created_at"`

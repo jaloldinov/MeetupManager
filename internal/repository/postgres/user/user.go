@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -29,14 +28,13 @@ func (r Repository) UserCreate(ctx context.Context, request CreateUserRequest) (
 		return CreateUserResponse{}, er
 	}
 
-	detail.Id = uuid.NewString()
 	detail.Username = *request.Username
 	detail.Password = request.Password
 	detail.Role = *request.Role
 	detail.CreatedBy = &dataCtx.UserId
 	detail.CreatedAt = time.Now()
 
-	_, err := r.NewInsert().Model(&detail).Exec(ctx)
+	_, err := r.NewInsert().Model(&detail).Returning("id").Exec(ctx)
 
 	if err != nil {
 		return CreateUserResponse{}, &pkg.Error{

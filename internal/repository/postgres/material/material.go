@@ -1,4 +1,4 @@
-package place
+package material
 
 import (
 	"context"
@@ -20,23 +20,25 @@ func NewRepository(postgresDB *postgres.Database) *Repository {
 	return &Repository{postgresDB}
 }
 
-func (r Repository) PlaceCreate(ctx context.Context, request CreatePlaceRequest) (CreatePlaceResponse, *pkg.Error) {
-	var detail CreatePlaceResponse
+func (r Repository) MaterialCreate(ctx context.Context, request CreateMaterialRequest) (CreateMaterialResponse, *pkg.Error) {
+	var detail CreateMaterialResponse
 	dataCtx, er := r.CheckCtx(ctx)
 	if er != nil {
-		return CreatePlaceResponse{}, er
+		return CreateMaterialResponse{}, er
 	}
 
-	detail.Name = *request.Name
-	detail.Code = request.Code
+	detail.Index = request.Index
+	detail.Title = *request.Title
+	detail.Content = request.Content
+	detail.File = request.File
 	detail.CreatedBy = &dataCtx.UserId
 	detail.CreatedAt = time.Now()
 
 	_, err := r.NewInsert().Model(&detail).Returning("id").Exec(ctx)
 
 	if err != nil {
-		return CreatePlaceResponse{}, &pkg.Error{
-			Err:    pkg.WrapError(err, "creating place"),
+		return CreateMaterialResponse{}, &pkg.Error{
+			Err:    pkg.WrapError(err, "creating material"),
 			Status: http.StatusInternalServerError,
 		}
 	}
@@ -44,22 +46,22 @@ func (r Repository) PlaceCreate(ctx context.Context, request CreatePlaceRequest)
 	return detail, nil
 }
 
-func (r Repository) PlaceGetById(ctx context.Context, id string) (GetPlaceResponse, *pkg.Error) {
-	var place GetPlaceResponse
+func (r Repository) MaterialGetById(ctx context.Context, id string) (GetMaterialResponse, *pkg.Error) {
+	var material GetMaterialResponse
 
-	err := r.NewSelect().Model(&place).Where("id = ?", id).Scan(ctx)
+	err := r.NewSelect().Model(&material).Where("id = ?", id).Scan(ctx)
 	if err != nil {
-		return GetPlaceResponse{}, &pkg.Error{
-			Err:    pkg.WrapError(err, "selecting place get by id"),
+		return GetMaterialResponse{}, &pkg.Error{
+			Err:    pkg.WrapError(err, "selecting material get by id"),
 			Status: http.StatusInternalServerError,
 		}
 	}
 
-	return place, nil
+	return material, nil
 }
 
-func (r Repository) PlaceGetAll(ctx context.Context, filter Filter) ([]GetPlaceListResponse, int, *pkg.Error) {
-	var list []GetPlaceListResponse
+func (r Repository) MaterialGetAll(ctx context.Context, filter Filter) ([]GetMaterialListResponse, int, *pkg.Error) {
+	var list []GetMaterialListResponse
 
 	q := r.NewSelect().Model(&list)
 	q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
@@ -76,7 +78,7 @@ func (r Repository) PlaceGetAll(ctx context.Context, filter Filter) ([]GetPlaceL
 
 	if filter.Search != nil {
 		q.WhereGroup(" and ", func(query *bun.SelectQuery) *bun.SelectQuery {
-			query.Where("lower(name) like lower(?)", "%"+*filter.Search+"%")
+			query.Where("lower(full_name) like lower(?)", "%"+*filter.Search+"%")
 			return query
 		})
 	}
@@ -86,34 +88,39 @@ func (r Repository) PlaceGetAll(ctx context.Context, filter Filter) ([]GetPlaceL
 	count, err := q.ScanAndCount(ctx)
 	if err != nil {
 		return nil, 0, &pkg.Error{
-			Err:    pkg.WrapError(err, "selecting place list"),
+			Err:    pkg.WrapError(err, "selecting material list"),
 			Status: http.StatusInternalServerError,
 		}
 	}
 	return list, count, nil
 }
 
-func (r Repository) PlaceUpdate(ctx context.Context, request UpdatePlaceRequest) *pkg.Error {
-	var detail entity.Place
+func (r Repository) MaterialUpdate(ctx context.Context, request UpdateMaterialRequest) *pkg.Error {
+	var detail entity.Material
 	dataCtx, er := r.CheckCtx(ctx)
 	if er != nil {
 		return er
 	}
 
-	err := r.NewSelect().Model(&detail).Where("id = ?", request.Id).Scan(ctx)
+	err := r.NewSelect().Model(&detail).Where("id = ?", &request.Id).Scan(ctx)
 	if err != nil {
 		return &pkg.Error{
-			Err:    pkg.WrapError(err, "updating place get by id"),
+			Err:    pkg.WrapError(err, "updating material get by id"),
 			Status: http.StatusInternalServerError,
 		}
 	}
 
-	if request.Name != nil {
-		detail.Name = *request.Name
+	if request.Index != nil {
+		detail.Index = *request.Index
 	}
-
-	if request.Code != nil {
-		detail.Code = *request.Code
+	if request.Title != nil {
+		detail.Title = *request.Title
+	}
+	if request.Content != nil {
+		detail.Content = *request.Content
+	}
+	if request.File != nil {
+		detail.File = request.File
 	}
 
 	date := time.Now()
@@ -124,21 +131,21 @@ func (r Repository) PlaceUpdate(ctx context.Context, request UpdatePlaceRequest)
 
 	if err != nil {
 		return &pkg.Error{
-			Err:    pkg.WrapError(err, "updating place"),
+			Err:    pkg.WrapError(err, "updating material"),
 			Status: http.StatusInternalServerError,
 		}
 	}
 	return nil
 }
 
-func (r Repository) PlaceDelete(ctx context.Context, id string) *pkg.Error {
+func (r Repository) MaterialDelete(ctx context.Context, id string) *pkg.Error {
 
 	dataCtx, er := r.CheckCtx(ctx)
 	if er != nil {
 		return er
 	}
 	result, err := r.NewUpdate().
-		Table("places").
+		Table("materials").
 		Where("deleted_at is null AND id = ?", id).
 		Set("deleted_at = ?, deleted_by = ?", time.Now(), dataCtx.UserId).
 		Exec(ctx)

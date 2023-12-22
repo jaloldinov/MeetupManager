@@ -21,7 +21,7 @@ type CreateUserRequest struct {
 type CreateUserResponse struct {
 	bun.BaseModel `bun:"table:users"`
 
-	Id        string    `json:"id" bun:"id"`
+	Id        *int      `json:"id" bun:"id"`
 	Username  string    `json:"username" bun:"username"`
 	Password  *string   `json:"-" bun:"password"`
 	Role      string    `json:"role" bun:"role"`

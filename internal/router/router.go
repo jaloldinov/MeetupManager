@@ -3,13 +3,17 @@ package router
 import (
 	"meetup/internal/auth"
 	auth_controller "meetup/internal/controller/http/v1/auth"
+	material_controller "meetup/internal/controller/http/v1/material"
 	meeting_controller "meetup/internal/controller/http/v1/meeting"
+	meeting_place_controller "meetup/internal/controller/http/v1/meeting_place"
 	person_controller "meetup/internal/controller/http/v1/person"
 	place_controller "meetup/internal/controller/http/v1/place"
 	user_controller "meetup/internal/controller/http/v1/user"
 
 	"meetup/internal/pkg/repository/postgres"
+	material_repo "meetup/internal/repository/postgres/material"
 	meeting_repo "meetup/internal/repository/postgres/meeting"
+	meeting_place_repo "meetup/internal/repository/postgres/meeting_place"
 	person_repo "meetup/internal/repository/postgres/person"
 	place_repo "meetup/internal/repository/postgres/place"
 	user_repo "meetup/internal/repository/postgres/user"
@@ -45,6 +49,8 @@ func (r *Router) Init(port string) error {
 	personRepo := person_repo.NewRepository(r.postgresDB)
 	placeRepo := place_repo.NewRepository(r.postgresDB)
 	meetingRepo := meeting_repo.NewRepository(r.postgresDB)
+	meeting_placeRepo := meeting_place_repo.NewRepository(r.postgresDB)
+	materialRepo := material_repo.NewRepository(r.postgresDB)
 
 	//controller
 	authController := auth_controller.NewController(userRepo, r.auth)
@@ -53,9 +59,13 @@ func (r *Router) Init(port string) error {
 	personController := person_controller.NewController(personRepo)
 	placeController := place_controller.NewController(placeRepo)
 	meetingController := meeting_controller.NewController(meetingRepo)
+	meeting_placeController := meeting_place_controller.NewController(meeting_placeRepo)
+	materialController := material_controller.NewController(materialRepo)
 
 	// #AUTH
 	router.POST("/api/v1/admin/sign-in", authController.SignIn)
+
+	// router.POST("api/v1/admin/user/create", userController.CreateUser)
 
 	// # ADMIN USER
 	router.POST("api/v1/admin/user/create", r.auth.HasPermission("ADMIN"), userController.CreateUser)
@@ -85,6 +95,21 @@ func (r *Router) Init(port string) error {
 	router.GET("/api/v1/admin/meeting/list", r.auth.HasPermission("ADMIN"), meetingController.GetMeetingList)
 	router.PUT("/api/v1/admin/meeting/:id", r.auth.HasPermission("ADMIN"), meetingController.UpdateMeeting)
 	router.DELETE("/api/v1/admin/meeting/:id", r.auth.HasPermission("ADMIN"), meetingController.DeleteMeeting)
+
+	// # ADMIN MEETING PLACE
+	router.POST("api/v1/admin/meeting_place/create", r.auth.HasPermission("ADMIN"), meeting_placeController.CreateMeetingPlace)
+	router.GET("/api/v1/admin/meeting_place/:id", r.auth.HasPermission("ADMIN"), meeting_placeController.GetMeetingPlaceById)
+	router.GET("/api/v1/admin/meeting_place/list", r.auth.HasPermission("ADMIN"), meeting_placeController.GetMeetingPlaceList)
+	router.PUT("/api/v1/admin/meeting_place/:id", r.auth.HasPermission("ADMIN"), meeting_placeController.UpdateMeetingPlace)
+	router.DELETE("/api/v1/admin/meeting_place/:id", r.auth.HasPermission("ADMIN"), meeting_placeController.DeleteMeetingPlace)
+	router.GET("/api/v1/admin/meeting_place/list/:meeting_id", r.auth.HasPermission("ADMIN"), meeting_placeController.GetMeetingPlaceListWithName)
+
+	// # ADMIN MATERIAL
+	router.POST("api/v1/admin/material/create", r.auth.HasPermission("ADMIN"), materialController.CreateMaterial)
+	router.GET("/api/v1/admin/material/:id", r.auth.HasPermission("ADMIN"), materialController.GetMaterialById)
+	router.GET("/api/v1/admin/material/list", r.auth.HasPermission("ADMIN"), materialController.GetMaterialList)
+	router.PUT("/api/v1/admin/material/:id", r.auth.HasPermission("ADMIN"), materialController.UpdateMaterial)
+	router.DELETE("/api/v1/admin/material/:id", r.auth.HasPermission("ADMIN"), materialController.DeleteMaterial)
 
 	return router.Run(port)
 }

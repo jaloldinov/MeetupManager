@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -29,7 +28,6 @@ func (r Repository) MeetingCreate(ctx context.Context, request CreateMeetingRequ
 		return CreateMeetingResponse{}, er
 	}
 
-	detail.Id = uuid.NewString()
 	detail.Title = request.Title
 	detail.Description = request.Description
 	detail.MeetingTime = request.MeetingTime

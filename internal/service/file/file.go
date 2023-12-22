@@ -53,7 +53,7 @@ func (s Service) Upload(ctx context.Context, file *multipart.FileHeader, folder 
 		"image/jpeg":         true,
 		"image/png":          true,
 		"application/pdf":    true,
-		// "application/vnd.openxmlformats-officedocument.wordprocessingml.document": true,
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document": true,
 	}
 
 	if len(file.Header.Values("Content-Type")) > 0 && !contentTypes[file.Header.Values("Content-Type")[0]] {

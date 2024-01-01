@@ -1,4 +1,4 @@
-package meeting_place_place
+package meeting_place
 
 import (
 	"meetup/internal/pkg"
@@ -35,6 +35,8 @@ func (mc Controller) CreateMeetingPlace(c *gin.Context) {
 		return
 	}
 
+	mc.broadcastMonitor()
+	mc.broadcastPlace()
 	response.Respond(c, detail)
 }
 
@@ -119,6 +121,8 @@ func (mc Controller) UpdateMeetingPlace(c *gin.Context) {
 		return
 	}
 
+	mc.broadcastMonitor()
+	mc.broadcastPlace()
 	response.RespondNoData(c)
 }
 
@@ -132,5 +136,7 @@ func (mc Controller) DeleteMeetingPlace(c *gin.Context) {
 		return
 	}
 
+	mc.broadcastMonitor()
+	mc.broadcastPlace()
 	response.RespondNoData(c)
 }

@@ -2,6 +2,7 @@ package meeting_place
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"meetup/internal/entity"
@@ -203,4 +204,39 @@ func (r Repository) MeetingPlaceDelete(ctx context.Context, id string) *pkg.Erro
 	}
 
 	return nil
+}
+
+func (r Repository) GetDetailByPlaceID(ctx context.Context, placeID string) (*MeetingDetail, *pkg.Error) {
+	query := fmt.Sprintf(`
+		SELECT
+			-- m.title AS meeting_title,
+			p.full_name AS person_fullname,
+			pl.name AS place_name
+		FROM
+			meeting_places mp
+		JOIN
+			meetings m ON mp.meeting_id = m.id
+		JOIN
+			persons p ON mp.person_id = p.id
+		JOIN
+			places pl ON mp.place_id = pl.id
+		WHERE
+			mp.place_id = %v
+			AND m.start_time <= NOW()  
+			AND m.end_time >= NOW() 
+	`, placeID)
+
+	row := r.DB.QueryRowContext(ctx, query)
+
+	var meetingDetail MeetingDetail
+	// if err := row.Scan(&meetingDetail.MeetingTitle, &meetingDetail.PersonFullName, &meetingDetail.PlaceName); err != nil {
+	if err := row.Scan(&meetingDetail.PersonFullName, &meetingDetail.PlaceName); err != nil {
+
+		if err == sql.ErrNoRows {
+			return nil, &pkg.Error{Status: 404, Err: errors.New("no meeting details found")}
+		}
+		return nil, &pkg.Error{Status: 500, Err: err}
+	}
+
+	return &meetingDetail, nil
 }

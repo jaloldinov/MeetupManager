@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"meetup/internal/auth"
+
 	"meetup/internal/pkg/config"
 	"meetup/internal/pkg/repository/postgres"
 	"meetup/internal/router"
@@ -19,7 +20,9 @@ func main() {
 	authenticator := auth.New(postgresDB)
 
 	// router
+
 	r := router.New(authenticator, postgresDB)
+
 	fmt.Println(cfg.Port)
 	log.Fatalln(r.Init(fmt.Sprintf(":%s", "8080")))
 

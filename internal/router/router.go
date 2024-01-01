@@ -25,10 +25,6 @@ type Auth interface {
 	HasPermission(roles ...string) gin.HandlerFunc
 }
 
-type AuthController interface {
-	SignIn(c *gin.Context)
-}
-
 type Router struct {
 	postgresDB *postgres.Database
 	auth       *auth.Auth
@@ -110,6 +106,10 @@ func (r *Router) Init(port string) error {
 	router.GET("/api/v1/admin/material/list", r.auth.HasPermission("ADMIN"), materialController.GetMaterialList)
 	router.PUT("/api/v1/admin/material/:id", r.auth.HasPermission("ADMIN"), materialController.UpdateMaterial)
 	router.DELETE("/api/v1/admin/material/:id", r.auth.HasPermission("ADMIN"), materialController.DeleteMaterial)
+
+	// WEBSOCKET
+	router.GET("/ws/api/v1/admin/meeting_place/place", meeting_placeController.HandleWebSocketForPlace)     // for place
+	router.GET("/ws/api/v1/admin/meeting_place/monitor", meeting_placeController.HandleWebSocketForMonitor) // for monitor
 
 	return router.Run(port)
 }

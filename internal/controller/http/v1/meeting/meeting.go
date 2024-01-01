@@ -25,7 +25,7 @@ func NewController(meeting Meeting) *Controller {
 func (mc Controller) CreateMeeting(c *gin.Context) {
 	var data meeting_repo.CreateMeetingRequest
 
-	if err := request.BindFunc(c, &data, "Title", "MeetingTime"); err != nil {
+	if err := request.BindFunc(c, &data, "Title", "StartTime", "EndTime"); err != nil {
 		response.RespondError(c, err)
 		return
 	}

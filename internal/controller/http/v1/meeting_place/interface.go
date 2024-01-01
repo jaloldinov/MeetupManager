@@ -1,4 +1,4 @@
-package meeting_place_place
+package meeting_place
 
 import (
 	"context"
@@ -13,4 +13,7 @@ type MeetingPlace interface {
 	MeetingPlaceUpdate(ctx context.Context, data meeting_place.UpdateMeetingPlaceRequest) *pkg.Error
 	MeetingPlaceDelete(ctx context.Context, id string) *pkg.Error
 	MeetingPlaceList(ctx context.Context, meetingID string) ([]meeting_place.MeetingPlaceResponse, int, *pkg.Error)
+
+	//for websocket
+	GetDetailByPlaceID(ctx context.Context, meetingID string) (*meeting_place.MeetingDetail, *pkg.Error)
 }

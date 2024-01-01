@@ -45,7 +45,7 @@ CREATE TABLE "meetings" (
   "id" serial PRIMARY KEY,
   "title" jsonb NOT NULL,
   "description" jsonb NOT NULL,
-  "start_tim" timestamp,
+  "start_time" timestamp,
   "end_time" timestamp,
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "created_by" int,

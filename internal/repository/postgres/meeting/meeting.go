@@ -30,7 +30,8 @@ func (r Repository) MeetingCreate(ctx context.Context, request CreateMeetingRequ
 
 	detail.Title = request.Title
 	detail.Description = request.Description
-	detail.MeetingTime = request.MeetingTime
+	detail.StartTime = *request.StartTime
+	detail.EndTime = *request.EndTime
 	detail.CreatedBy = &dataCtx.UserId
 	detail.CreatedAt = time.Now()
 
@@ -118,8 +119,11 @@ func (r Repository) MeetingUpdate(ctx context.Context, request UpdateMeetingRequ
 		detail.Description = request.Description
 	}
 
-	if request.MeetingTime != nil {
-		detail.MeetingTime = *request.MeetingTime
+	if request.StartTime != nil {
+		detail.StartTime = request.StartTime
+	}
+	if request.EndTime != nil {
+		detail.EndTime = request.EndTime
 	}
 
 	date := time.Now()

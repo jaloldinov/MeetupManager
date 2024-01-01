@@ -30,14 +30,6 @@ func (uc Controller) CreateUser(c *gin.Context) {
 		response.RespondError(c, err)
 		return
 	}
-
-	// avatarLink, err := file.NewService().Upload(c, data.Avatar, "avatar")
-	// if err != nil {
-	// 	response.RespondError(c, err)
-	// 	return
-	// }
-	// data.AvatarLink = avatarLink
-
 	password, err := hash.HashPassword(*data.Password)
 	if err != nil {
 		response.RespondError(c, &pkg.Error{

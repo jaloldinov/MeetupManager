@@ -53,6 +53,11 @@ type MeetingPlaceResponse struct {
 	PlaceName  string `json:"place_name"`
 }
 
+type MeetingPlaceResponseForSocket struct {
+	List  []MeetingPlaceResponse `json:"data"`
+	Count int                    `json:"count"`
+}
+
 type UpdateMeetingPlaceRequest struct {
 	Id        string `json:"id" bun:"id,pk"`
 	MeetingId *int   `json:"meeting_id" form:"meeting_id"`
@@ -62,4 +67,10 @@ type UpdateMeetingPlaceRequest struct {
 
 type DetailMeetingPlaceResponse struct {
 	bun.BaseModel `bun:"table:meeting_places"`
+}
+
+type MeetingDetail struct {
+	MeetingTitle   string `json:"meeting_title,omitempty"`
+	PersonFullName string `json:"person_fullname"`
+	PlaceName      string `json:"place_name"`
 }
